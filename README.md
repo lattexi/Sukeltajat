@@ -1,36 +1,150 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sukeltajat ry - Headless WordPress Frontend
 
-## Getting Started
+A modern, headless WordPress frontend built with Next.js 14 for Sukeltajat ry, a Finnish diving club established in 1976.
 
-First, run the development server:
+## Tech Stack
+
+- **Framework**: Next.js 14 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **GraphQL**: Apollo Client with GraphQL Code Generator
+- **Data Source**: WordPress via WPGraphQL
+- **Deployment**: Optimized for Vercel
+
+## Features
+
+- 🏠 **Home page** with latest 6 posts and hero section
+- 📰 **News archive** by year (`/uutiset/[vuosi]`)
+- 📄 **Single post pages** (`/uutiset/[vuosi]/[slug]`)
+- 🧭 **Global navigation** with Finnish UI text
+- 🔍 **SEO optimization** with proper metadata
+- 📱 **Mobile-first responsive design**
+- ⚡ **Static Generation with ISR** (5-minute revalidation)
+- 🎯 **TypeScript** with generated GraphQL hooks
+
+## Quick Start
+
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Environment Setup
+
+Copy the environment template:
+
+```bash
+cp .env.local.example .env.local
+```
+
+Edit `.env.local` and add your WordPress GraphQL endpoint:
+
+```env
+WPGRAPHQL_URL=https://your-wordpress-site.com/graphql
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+```
+
+### 3. Generate GraphQL Types
+
+```bash
+npm run codegen
+```
+
+### 4. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the site.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Development
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Scripts
 
-## Learn More
+- `npm run dev` - Start development server with Turbopack
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run typecheck` - Run TypeScript compiler check
+- `npm run codegen` - Generate GraphQL types
+- `npm run codegen:watch` - Watch mode for GraphQL generation
 
-To learn more about Next.js, take a look at the following resources:
+### Quality Gates
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Before deployment, ensure:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run lint      # ESLint must pass
+npm run typecheck # TypeScript must pass
+npm run build     # Build must succeed
+```
 
-## Deploy on Vercel
+## WordPress Requirements
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Your WordPress site needs:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **WPGraphQL plugin** installed and activated
+2. **GraphQL endpoint** accessible at `/graphql`
+3. **Posts** with categories, featured images, and proper permalinks
+
+## Deployment
+
+### Vercel (Recommended)
+
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Add environment variables in Vercel dashboard:
+   - `WPGRAPHQL_URL`
+   - `NEXT_PUBLIC_SITE_URL`
+4. Deploy!
+
+### Other Platforms
+
+The app works on any platform that supports Node.js and Next.js static export.
+
+## Project Structure
+
+```
+src/
+├── app/                    # App Router pages
+│   ├── layout.tsx         # Global layout
+│   ├── page.tsx           # Homepage
+│   ├── not-found.tsx      # 404 page
+│   ├── uutiset/           # News routes
+│   │   ├── page.tsx       # News archive
+│   │   └── [vuosi]/       # Year-based routes
+│   │       ├── page.tsx   # Posts by year
+│   │       └── [slug]/    # Single post
+│   └── ...                # Other pages
+├── components/            # Reusable UI components
+│   ├── Navigation.tsx     # Header navigation
+│   ├── Footer.tsx         # Site footer
+│   ├── PostCard.tsx       # Post preview card
+│   └── ApolloWrapper.tsx  # GraphQL provider
+└── lib/                   # Utilities and config
+    ├── wpClient.ts        # Apollo Client setup
+    └── queries/           # GraphQL queries
+        ├── posts.ts       # Post-related queries
+        └── generated.ts   # Auto-generated types
+```
+
+## Contributing
+
+1. Follow TypeScript best practices
+2. Use Finnish for UI text, English for code
+3. Keep components minimal and focused
+4. Run linting and type checking before commits
+5. Test on both desktop and mobile
+
+## Performance
+
+- Target: Lighthouse performance ≥ 90
+- Uses Next.js Image optimization
+- Static generation with ISR
+- Optimized bundle size
+
+## License
+
+© 2025 Sukeltajat ry. All rights reserved.
