@@ -1,36 +1,11 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import PostCard from "@/components/PostCard";
-import { GET_POSTS_BY_YEAR } from "@/lib/queries/posts";
-import client from "@/lib/wpClient";
+import { getPostsByYear, type Post } from "@/lib/queries/posts";
 import type { Metadata } from "next";
 
 type Props = {
   params: Promise<{ vuosi: string }>;
-};
-
-type Post = {
-  id: string;
-  title: string;
-  excerpt: string;
-  slug: string;
-  date: string;
-  featuredImage?: {
-    node: {
-      sourceUrl: string;
-      altText: string;
-      mediaDetails: {
-        width: number;
-        height: number;
-      };
-    };
-  };
-  categories: {
-    nodes: Array<{
-      name: string;
-      slug: string;
-    }>;
-  };
 };
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
@@ -58,12 +33,8 @@ function LoadingSkeleton() {
 
 async function NewsContent({ year }: { year: string }) {
   try {
-    const { data } = await client.query({
-      query: GET_POSTS_BY_YEAR,
-      variables: { year: parseInt(year) },
-    });
-
-    const posts: Post[] = data?.posts?.nodes || [];
+    const result = await getPostsByYear(parseInt(year), 20);
+    const posts: Post[] = result.posts;
 
     if (posts.length === 0) {
       return (
@@ -122,16 +93,16 @@ async function NewsContent({ year }: { year: string }) {
             slug={post.slug}
             date={post.date}
             featuredImage={
-              post.featuredImage?.node
+              post.featuredImage
                 ? {
-                    sourceUrl: post.featuredImage.node.sourceUrl,
-                    altText: post.featuredImage.node.altText,
-                    width: post.featuredImage.node.mediaDetails.width,
-                    height: post.featuredImage.node.mediaDetails.height,
+                    sourceUrl: post.featuredImage.sourceUrl,
+                    altText: post.featuredImage.altText,
+                    width: post.featuredImage.mediaDetails.width,
+                    height: post.featuredImage.mediaDetails.height,
                   }
                 : undefined
             }
-            categories={post.categories.nodes}
+            categories={post.categories}
           />
         ))}
       </div>

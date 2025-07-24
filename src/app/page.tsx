@@ -1,40 +1,11 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import PostCard from "@/components/PostCard";
-import { GET_LATEST_POSTS } from "@/lib/queries/posts";
-import client from "@/lib/wpClient";
+import { getLatestPosts, type Post } from "@/lib/queries/posts";
 
-type Post = {
-  id: string;
-  title: string;
-  excerpt: string;
-  slug: string;
-  date: string;
-  featuredImage?: {
-    node: {
-      sourceUrl: string;
-      altText: string;
-      mediaDetails: {
-        width: number;
-        height: number;
-      };
-    };
-  };
-  categories: {
-    nodes: Array<{
-      name: string;
-      slug: string;
-    }>;
-  };
-};
-
-async function getLatestPosts() {
+async function getHomePosts() {
   try {
-    const { data } = await client.query({
-      query: GET_LATEST_POSTS,
-      variables: { first: 6 },
-    });
-    return data.posts.nodes;
+    return await getLatestPosts(6);
   } catch (error) {
     console.error("Error fetching posts:", error);
     return [];
@@ -44,7 +15,7 @@ async function getLatestPosts() {
 export const revalidate = 300; // 5 minutes
 
 export default async function HomePage() {
-  const posts: Post[] = await getLatestPosts();
+  const posts: Post[] = await getHomePosts();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900">
@@ -148,14 +119,14 @@ export default async function HomePage() {
                     featuredImage={
                       post.featuredImage
                         ? {
-                            sourceUrl: post.featuredImage.node.sourceUrl,
-                            altText: post.featuredImage.node.altText,
-                            width: post.featuredImage.node.mediaDetails.width,
-                            height: post.featuredImage.node.mediaDetails.height,
+                            sourceUrl: post.featuredImage.sourceUrl,
+                            altText: post.featuredImage.altText,
+                            width: post.featuredImage.mediaDetails.width,
+                            height: post.featuredImage.mediaDetails.height,
                           }
                         : undefined
                     }
-                    categories={post.categories.nodes}
+                    categories={post.categories}
                   />
                 ))}
               </div>

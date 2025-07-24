@@ -8,7 +8,10 @@ export const metadata = {
 
 export default function UutisetPage() {
   const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 10 }, (_, i) => currentYear - i);
+  const years = Array.from(
+    { length: currentYear - 2008 },
+    (_, i) => currentYear - i
+  );
 
   return (
     <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 min-h-screen">

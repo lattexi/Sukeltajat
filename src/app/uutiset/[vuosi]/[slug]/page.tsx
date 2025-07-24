@@ -1,55 +1,16 @@
 import Link from "next/link";
 import Image from "next/image";
-import { GET_POST_BY_SLUG } from "@/lib/queries/posts";
-import client from "@/lib/wpClient";
+import { getPostBySlug, type Post } from "@/lib/queries/posts";
 import type { Metadata } from "next";
 
 type Props = {
   params: Promise<{ vuosi: string; slug: string }>;
 };
 
-type Post = {
-  id: string;
-  title: string;
-  content: string;
-  excerpt: string;
-  slug: string;
-  date: string;
-  modified: string;
-  featuredImage?: {
-    node: {
-      sourceUrl: string;
-      altText: string;
-      mediaDetails: {
-        width: number;
-        height: number;
-      };
-    };
-  };
-  categories: {
-    nodes: Array<{
-      name: string;
-      slug: string;
-    }>;
-  };
-  tags: {
-    nodes: Array<{
-      name: string;
-      slug: string;
-    }>;
-  };
-  author: {
-    node: {
-      name: string;
-      slug: string;
-    };
-  };
-};
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const resolvedParams = await params;
-    const post = await getPostBySlug(resolvedParams.slug);
+    const post = await getPost(resolvedParams.slug);
     if (!post) {
       return {
         title: "Artikkelia ei löytynyt - Sukeltajat ry",
@@ -67,8 +28,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description: cleanExcerpt,
         type: "article",
         publishedTime: post.date,
-        modifiedTime: post.modified,
-        images: post.featuredImage ? [post.featuredImage.node.sourceUrl] : [],
+        modifiedTime: post.modified || post.date,
+        images: post.featuredImage ? [post.featuredImage.sourceUrl] : [],
       },
     };
   } catch {
@@ -79,13 +40,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-async function getPostBySlug(slug: string): Promise<Post | null> {
+async function getPost(slug: string): Promise<Post | null> {
   try {
-    const { data } = await client.query({
-      query: GET_POST_BY_SLUG,
-      variables: { slug },
-    });
-    return data.postBy;
+    return await getPostBySlug(slug);
   } catch {
     console.error("Error fetching post");
     return null;
@@ -97,7 +54,7 @@ export const revalidate = 300;
 export default async function PostPage({ params }: Props) {
   const resolvedParams = await params;
   const year = parseInt(resolvedParams.vuosi);
-  const post = await getPostBySlug(resolvedParams.slug);
+  const post = await getPost(resolvedParams.slug);
 
   if (!post) {
     return (
@@ -149,7 +106,7 @@ export default async function PostPage({ params }: Props) {
   }
 
   const postDate = new Date(post.date);
-  const modifiedDate = new Date(post.modified);
+  const modifiedDate = post.modified ? new Date(post.modified) : postDate;
 
   return (
     <div className="bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 min-h-screen">
@@ -188,16 +145,16 @@ export default async function PostPage({ params }: Props) {
                   day: "numeric",
                 })}
               </time>
-              {post.categories.nodes.length > 0 && (
+              {post.categories.length > 0 && (
                 <>
                   <span>•</span>
-                  <span>{post.categories.nodes[0].name}</span>
+                  <span>{post.categories[0].name}</span>
                 </>
               )}
-              {post.author.node.name && (
+              {post.author?.name && (
                 <>
                   <span>•</span>
-                  <span>{post.author.node.name}</span>
+                  <span>{post.author.name}</span>
                 </>
               )}
             </div>
@@ -210,8 +167,8 @@ export default async function PostPage({ params }: Props) {
             {post.featuredImage && (
               <div className="relative h-96 md:h-[500px] w-full mb-8 rounded-xl overflow-hidden shadow-2xl">
                 <Image
-                  src={post.featuredImage.node.sourceUrl}
-                  alt={post.featuredImage.node.altText || post.title}
+                  src={post.featuredImage.sourceUrl}
+                  alt={post.featuredImage.altText || post.title}
                   fill
                   className="object-cover"
                   priority
@@ -221,21 +178,21 @@ export default async function PostPage({ params }: Props) {
             )}
           </header>
 
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 lg:p-12 shadow-2xl border border-blue-400/20 mb-8">
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 lg:p-12 shadow-2xl border border-blue-400/20 mb-8">
             <div
-              className="prose prose-lg max-w-none prose-blue prose-headings:text-slate-900 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline prose-p:text-slate-700 prose-li:text-slate-700"
-              dangerouslySetInnerHTML={{ __html: post.content }}
+              className="prose prose-lg max-w-none text-white prose-headings:text-white prose-a:text-blue-300 prose-a:no-underline hover:prose-a:underline hover:prose-a:text-blue-200 prose-p:text-white prose-li:text-white prose-strong:text-white prose-em:text-blue-100 prose-blockquote:text-blue-100 prose-blockquote:border-blue-400/30 prose-code:text-blue-200 prose-code:bg-blue-900/30 prose-pre:bg-blue-900/50 prose-pre:text-white prose-hr:border-blue-400/30"
+              dangerouslySetInnerHTML={{ __html: post.content || post.excerpt }}
             />
           </div>
 
           <footer className="bg-white/10 backdrop-blur-sm rounded-xl p-6 lg:p-8 border border-blue-400/20">
-            {post.tags.nodes.length > 0 && (
+            {post.tags && post.tags.length > 0 && (
               <div className="mb-6">
                 <h3 className="text-sm font-medium text-white mb-3">
                   Avainsanat:
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {post.tags.nodes.map((tag) => (
+                  {post.tags.map((tag) => (
                     <span
                       key={tag.slug}
                       className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100/20 text-blue-100 border border-blue-400/30"
