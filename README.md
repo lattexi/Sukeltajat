@@ -45,13 +45,7 @@ WPGRAPHQL_URL=https://your-wordpress-site.com/graphql
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-### 3. Generate GraphQL Types
-
-```bash
-npm run codegen
-```
-
-### 4. Run Development Server
+### 3. Run Development Server
 
 ```bash
 npm run dev
@@ -68,8 +62,6 @@ Open [http://localhost:3000](http://localhost:3000) to see the site.
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
 - `npm run typecheck` - Run TypeScript compiler check
-- `npm run codegen` - Generate GraphQL types
-- `npm run codegen:watch` - Watch mode for GraphQL generation
 
 ### Quality Gates
 

@@ -1,3 +1,5 @@
+import { getApiBaseUrl } from "../config";
+
 // WordPress REST API types
 export interface WordPressPost {
   id: number;
@@ -85,8 +87,8 @@ export interface Post {
   };
 }
 
-// const WP_API_BASE = "https://sukeltajat.fi/wp/";
-const WP_API_BASE = "https://users.metropolia.fi/~lauralek/wp/";
+const WP_API_BASE = getApiBaseUrl() + "/";
+// const WP_API_BASE = "https://users.metropolia.fi/~lauralek/wp/";
 
 // Helper function to normalize WordPress post to our Post type
 function normalizeWordPressPost(wpPost: WordPressPost): Post {
