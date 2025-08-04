@@ -24,7 +24,6 @@ function CalendarView({ events }: { events: CalendarEvent[] }) {
 
   // Get first day of month and last day of month
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
-  const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
 
   // Get the day of week for first day (0 = Sunday, 1 = Monday, etc.)
   const startingDayOfWeek = firstDayOfMonth.getDay();
@@ -118,7 +117,7 @@ function CalendarView({ events }: { events: CalendarEvent[] }) {
 
               {dayEvents.length > 0 && (
                 <div className="space-y-1">
-                  {dayEvents.slice(0, 2).map((event, eventIndex) => (
+                  {dayEvents.slice(0, 2).map((event) => (
                     <a
                       key={event.uid}
                       href={event.url || "#"}
@@ -164,7 +163,7 @@ async function CalendarEvents() {
   }
 
   const events = Object.values(icalendarData).filter(
-    (item: any) => item.type === "VEVENT"
+    (item: CalendarEvent) => item.type === "VEVENT"
   ) as CalendarEvent[];
 
   if (events.length === 0) {

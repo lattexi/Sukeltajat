@@ -1,4 +1,3 @@
-// @ts-ignore - node-ical doesn't have proper types
 import ical from "node-ical";
 
 interface CalendarEvent {
@@ -27,7 +26,7 @@ export const getIcalendarData = async (): Promise<Record<
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
-    const jsonData: Record<string, any> = {};
+    const jsonData: Record<string, CalendarEvent> = {};
     for (const key in jsonDataRaw) {
       const entry = jsonDataRaw[key];
       if (entry.type === "VEVENT" && entry.start instanceof Date) {
@@ -41,11 +40,8 @@ export const getIcalendarData = async (): Promise<Record<
         if (entry.start >= todayStart) {
           jsonData[key] = entry;
         }
-      } else {
-        jsonData[key] = entry;
       }
     }
-    console.log("Parsed iCalendar data:", jsonData);
     return jsonData;
   } catch (error) {
     console.error("Error fetching iCalendar data:", error);
