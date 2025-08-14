@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Enable source maps for better debugging
   productionBrowserSourceMaps: true,
+  output: "standalone",
 
   // Performance optimizations
   experimental: {
