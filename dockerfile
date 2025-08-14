@@ -27,6 +27,6 @@ COPY --chown=app:app --from=builder /app/public ./public
 COPY --chown=app:app --from=builder /app/.next/static ./.next/static
 
 ENV NODE_ENV=production
-EXPOSE 3000
+EXPOSE 3004
 
 CMD ["node", "server.js"]
